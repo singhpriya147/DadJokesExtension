@@ -9,5 +9,6 @@
   "icons":{
   "128":"logo.png"
   },
-  "persmissions":["activeTab"]
+ 
+  "persmissions":["activeTab","clipboardWrite"]
 }

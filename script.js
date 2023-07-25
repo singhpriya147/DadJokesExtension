@@ -1,4 +1,4 @@
-
+// for fetching random jokes 
 async function fetchAnyJoke(){
 try {
   const response = await fetch(`https://v2.jokeapi.dev/joke/any`);
@@ -15,13 +15,25 @@ try {
    return 'Failed to fetch jokes. Please try again later.';
 }
 }
+// for displaying random jokes
 
 async function displayAnyJoke(){
-  const jokeContainer=document.getElementById('joke-element');
-  jokeContainer.innerHTML='loading..';
-  const joke=await fetchAnyJoke();
+  const jokeContainer = document.getElementById('jokeContainer');
+  jokeContainer.innerHTML = 'loading..';
+  const joke = await fetchAnyJoke();
   jokeContainer.textContent = joke;
+
+  // Check if the current joke is hearted and add the "hearted" class accordingly
+  const heartedJokes = JSON.parse(localStorage.getItem('heartedJokes')) || [];
+  const heartBtn = document.getElementById('heartBtn');
+  if (heartedJokes.includes(joke)) {
+    heartBtn.classList.add('hearted');
+  } else {
+    heartBtn.classList.remove('hearted');
+  }
 }
+
+// fetching joke from specific category
 
 async function  fetchJoke(category){
 try {
@@ -48,38 +60,131 @@ try {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// displaying the jokes from specific categroy 
 
 
 async function displayJokes(category){
-  const jokeElement=document.getElementById("joke-element"); 
-    jokeElement.innerHTML = "loading..";
-    const joke=await fetchJoke(category);
-    jokeElement.textContent=joke;
+  const jokeContainer = document.getElementById('jokeContainer');
+  jokeContainer.innerHTML = 'loading..';
+  const joke = await fetchJoke(category);
+  jokeContainer.textContent = joke;
+
+  // Check if the current joke is hearted and add the "hearted" class accordingly
+  const heartedJokes = JSON.parse(localStorage.getItem('heartedJokes')) || [];
+  const heartBtn = document.getElementById('heartBtn');
+  if (heartedJokes.includes(joke)) {
+    heartBtn.classList.add('hearted');
+  } else {
+    heartBtn.classList.remove('hearted');
+  }
 }
+
+
+//  for copying the jokes to clipboard for sharing purposes
+
+const copyToClipboard=async()=>{
+  const jokeText=document.getElementById('jokeContainer').innerText;
+   
+try {
+  await navigator.clipboard.writeText(jokeText);
+  console.log(" copied to clipboard");
+} catch (error) {
+  console.error(" fail to copy",error);
+}
+ 
+}
+
+
+// for deleteing jokes from local storage 
+
+function deleteHeartedJokes() {
+  localStorage.removeItem('heartedJokes');
+}
+
+
+
+
+// let currentJokeIndex=0;
+
+// function displayHeartedJokes() {
+//   const jokeContainer = document.getElementById('jokeContainer');
+//   jokeContainer.innerHTML = '';
+
+//   const heartedJokes = JSON.parse(localStorage.getItem('heartedJokes')) || [];
+//   if (heartedJokes.length === 0) {
+//     jokeContainer.textContent = 'No hearted jokes found.';
+//     // Remove the "hearted" class to reset the heart icon color
+//     document.getElementById('heartBtn').classList.remove('hearted');
+//     // Reset the currentJokeIndex
+//     currentJokeIndex = 0;
+//   } else {
+//     // Show the left and right arrow icons
+//     jokeContainer.innerHTML = `
+//       <i class="fa-solid fa-arrow-left" id="prevBtn"></i>
+//       <p>${heartedJokes[currentJokeIndex]}</p>
+//       <i class="fa-solid fa-arrow-right" id="nextBtn"></i>
+//     `;
+
+//     // Check if the current joke is hearted and add the "hearted" class accordingly
+//     const currentJokeText = heartedJokes[currentJokeIndex];
+//     const heartBtn = document.getElementById('heartBtn');
+//     if (currentJokeText === jokeContainer.textContent) {
+//       heartBtn.classList.add('hearted');
+//     } else {
+//       heartBtn.classList.remove('hearted');
+//     }
+//   }
+// }
+
+
+
+// function displayNextJoke() {
+//   const heartedJokes = JSON.parse(localStorage.getItem('heartedJokes')) || [];
+//   if (heartedJokes.length > 0) {
+//     currentJokeIndex = (currentJokeIndex + 1) % heartedJokes.length;
+//     displayHeartedJokes();
+//   }
+// }
+
+// function displayPreviousJoke() {
+//   const heartedJokes = JSON.parse(localStorage.getItem('heartedJokes')) || [];
+//   if (heartedJokes.length > 0) {
+//     currentJokeIndex =
+//       (currentJokeIndex - 1 + heartedJokes.length) % heartedJokes.length;
+//     displayHeartedJokes();
+//   }
+// }
+
+
+
+
+document.getElementById('heartBtn').addEventListener('click', () => {
+  const jokeContainer = document.getElementById('jokeContainer');
+  const jokeText = jokeContainer.innerText;
+
+  // check if already stored in local storage
+  const heartedJokes = JSON.parse(localStorage.getItem('heartedJokes')) || [];
+
+  if (!heartedJokes.includes(jokeText)) {
+    // If the joke is not in heartedJokes, add it
+    heartedJokes.push(jokeText);
+    localStorage.setItem('heartedJokes', JSON.stringify(heartedJokes));
+    // document.getElementById('heartBtn').classList.add('hearted');
+  } else {
+    // If the joke is already in heartedJokes, remove it
+    const updatedHeartedJokes = heartedJokes.filter(
+      (joke) => joke !== jokeText
+    );
+    localStorage.setItem('heartedJokes', JSON.stringify(updatedHeartedJokes));
+    // document.getElementById('heartBtn').classList.remove('hearted');
+  }
+ document.getElementById('heartBtn').classList.toggle('hearted');
+
+});
+
+
+
+
 
 
 
@@ -105,13 +210,14 @@ document.getElementById('ChristmasBtn').addEventListener('click', () => {
 
 
 
-// for sharing purposes
-
-const shareOnWhatsApp=(joke)=>{
-const shareUrl=`https://api.whatsapp.com/send?text=${encodedURIComponent(joke)}`;
-window.opener(shareUrl,'_blank');
-}
-document.getElementById('shareWhatsAppBtn').addEventListener('click', () => {
-  const joke = document.getElementById('jokeContainer').textContent;
-  shareOnWhatsApp(joke);
+document.getElementById('copyBtn').addEventListener('click', () => {
+  copyToClipboard();
 });
+
+document.getElementById('deleteBtn').addEventListener('click', () => {
+  deleteHeartedJokes();
+});
+
+// document.getElementById('likedJokes').addEventListener('click', () => {
+//   displayHeartedJokes();
+// });
