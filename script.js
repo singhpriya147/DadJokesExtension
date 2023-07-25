@@ -3,16 +3,25 @@ async function fetchAnyJoke(){
 try {
   const response = await fetch(`https://v2.jokeapi.dev/joke/any`);
   const data=await response.json();
-   if (data && data.type === 'single' && data.joke) {
-     return data.joke;
+   console.log(data);
+   // check if any flags are true
+const trueFlags=Object.keys(data.flags).filter((flag)=>data.flags[flag])
+
+   if (data && data.type === 'single' && data.joke ) {
+    //  return data.joke;
+    return {joke:data.joke,trueFlags};
+    
+    
    } else if (data && data.type === 'twopart' && data.setup && data.delivery) {
-     return `${data.setup}\n${data.delivery}`;
+
+     return{joke: `${data.setup}\n${data.delivery}`,trueFlags};
+
    } else {
-     return 'No joke found.';
+     return {joke:'No joke found.',trueFlags};
    }
 } catch (error) {
    console.error('Error fetching jokes:', error);
-   return 'Failed to fetch jokes. Please try again later.';
+   return {joke:'Failed to fetch jokes. Please try again later.',trueFlags:[]};
 }
 }
 // for displaying random jokes
@@ -20,8 +29,23 @@ try {
 async function displayAnyJoke(){
   const jokeContainer = document.getElementById('jokeContainer');
   jokeContainer.innerHTML = 'loading..';
-  const joke = await fetchAnyJoke();
+  const {joke,trueFlags} = await fetchAnyJoke();
+
   jokeContainer.textContent = joke;
+
+   const flagsContainer = document.getElementById('flagsContainer');
+  if(trueFlags.length >0){
+    flagsContainer.textContent = `
+   
+    ${trueFlags.join(' ,')}`;
+    flagsContainer.style.display='block';
+  }
+  else{
+     flagsContainer.style.display = 'none';
+  }
+
+
+  
 
   // Check if the current joke is hearted and add the "hearted" class accordingly
   const heartedJokes = JSON.parse(localStorage.getItem('heartedJokes')) || [];
@@ -37,25 +61,30 @@ async function displayAnyJoke(){
 
 async function  fetchJoke(category){
 try {
-    const response = await fetch(`https://v2.jokeapi.dev/joke/${category}`);
-    const data = await response.json();
-    if (data && data.type === 'single' && data.joke) {
-      return data.joke;
-    }
-    
-    else if( data && data.type ==="twopart" && data.setup && data.delivery){
-      return `${data.setup}\n${data.delivery}`
+  const response = await fetch(`https://v2.jokeapi.dev/joke/${category}`);
+  const data = await response.json();
+  console.log(data);
 
-    }
+  // check if any flags are true
+  const trueFlags = Object.keys(data.flags).filter((flag) => data.flags[flag]);
+
+  if (data && data.type === 'single' && data.joke) {
+    return { joke: data.joke, trueFlags };
+
+  } else if (data && data.type === 'twopart' && data.setup && data.delivery) {
+
     
-    else {
-      return "no jokes found";
-    }
-  
-  
+
+    return { joke: `${data.setup}\n${data.delivery}`, trueFlags };
+  } else {
+    return { joke: 'No joke found.', trueFlags };
+  }
 } catch (error) {
    console.error('Error fetching jokes:', error);
-   return 'Failed to fetch jokes. Please try again later.';
+ return {
+   joke: 'Failed to fetch jokes. Please try again later.',
+   trueFlags: [],
+ };
 }
 }
 
@@ -66,8 +95,17 @@ try {
 async function displayJokes(category){
   const jokeContainer = document.getElementById('jokeContainer');
   jokeContainer.innerHTML = 'loading..';
-  const joke = await fetchJoke(category);
+  const {joke,trueFlags} = await fetchJoke(category);
   jokeContainer.textContent = joke;
+
+
+ const flagsContainer = document.getElementById('flagsContainer');
+ if (trueFlags.length > 0) {
+   flagsContainer.textContent = `${trueFlags.join(' ,')}`;
+   flagsContainer.style.display = 'block';
+ } else {
+   flagsContainer.style.display = 'none';
+ }
 
   // Check if the current joke is hearted and add the "hearted" class accordingly
   const heartedJokes = JSON.parse(localStorage.getItem('heartedJokes')) || [];
@@ -160,11 +198,14 @@ function displayHeartedJokes() {
     // Reset the currentJokeIndex
     currentJokeIndex = 0;
   } else {
+
+
     // Show the left and right arrow icons
     jokeContainer.innerHTML = `
       <i class="fa-solid fa-arrow-left" id="prevBtn"></i>
       <p>${heartedJokes[currentJokeIndex]}</p>
       <i class="fa-solid fa-arrow-right" id="nextBtn"></i>
+       <i class="fa fa-trash" aria-hidden="true" id="deleteBtn"></i>
     `;
 
     // Check if the current joke is hearted and add the "hearted" class accordingly
@@ -244,9 +285,9 @@ document.getElementById('copyBtn').addEventListener('click', () => {
   copyToClipboard();
 });
 
-document.getElementById('deleteBtn').addEventListener('click', () => {
-  deleteHeartedJokes();
-});
+// document.getElementById('deleteBtn').addEventListener('click', () => {
+//   deleteHeartedJokes();
+// });
 
 document.getElementById('likedJokes').addEventListener('click', () => {
   displayHeartedJokes();
