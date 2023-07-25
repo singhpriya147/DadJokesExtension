@@ -104,57 +104,87 @@ function deleteHeartedJokes() {
 
 
 
-// let currentJokeIndex=0;
+let currentJokeIndex=0;
 
-// function displayHeartedJokes() {
-//   const jokeContainer = document.getElementById('jokeContainer');
-//   jokeContainer.innerHTML = '';
+function displayNextJoke() {
+  const heartedJokes = JSON.parse(localStorage.getItem('heartedJokes')) || [];
+  if (heartedJokes.length > 0) {
+    currentJokeIndex = (currentJokeIndex + 1) % heartedJokes.length;
+    // Check if the current joke is hearted and add the "hearted" class accordingly
+    const currentJokeText = heartedJokes[currentJokeIndex];
+    const heartBtn = document.getElementById('heartBtn');
+    if (
+      currentJokeText === document.getElementById('jokeContainer').textContent
+    ) {
+      heartBtn.classList.add('hearted');
+    } else {
+      heartBtn.classList.remove('hearted');
+    }
+    displayHeartedJokes();
+  }
+}
 
-//   const heartedJokes = JSON.parse(localStorage.getItem('heartedJokes')) || [];
-//   if (heartedJokes.length === 0) {
-//     jokeContainer.textContent = 'No hearted jokes found.';
-//     // Remove the "hearted" class to reset the heart icon color
-//     document.getElementById('heartBtn').classList.remove('hearted');
-//     // Reset the currentJokeIndex
-//     currentJokeIndex = 0;
-//   } else {
-//     // Show the left and right arrow icons
-//     jokeContainer.innerHTML = `
-//       <i class="fa-solid fa-arrow-left" id="prevBtn"></i>
-//       <p>${heartedJokes[currentJokeIndex]}</p>
-//       <i class="fa-solid fa-arrow-right" id="nextBtn"></i>
-//     `;
-
-//     // Check if the current joke is hearted and add the "hearted" class accordingly
-//     const currentJokeText = heartedJokes[currentJokeIndex];
-//     const heartBtn = document.getElementById('heartBtn');
-//     if (currentJokeText === jokeContainer.textContent) {
-//       heartBtn.classList.add('hearted');
-//     } else {
-//       heartBtn.classList.remove('hearted');
-//     }
-//   }
-// }
+function displayPreviousJoke() {
+  const heartedJokes = JSON.parse(localStorage.getItem('heartedJokes')) || [];
+  if (heartedJokes.length > 0) {
+    currentJokeIndex =
+      (currentJokeIndex - 1 + heartedJokes.length) % heartedJokes.length;
+    // Check if the current joke is hearted and add the "hearted" class accordingly
+    const currentJokeText = heartedJokes[currentJokeIndex];
+    const heartBtn = document.getElementById('heartBtn');
+    if (
+      currentJokeText === document.getElementById('jokeContainer').textContent
+    ) {
+      heartBtn.classList.add('hearted');
+    } else {
+      heartBtn.classList.remove('hearted');
+    }
+    displayHeartedJokes();
+  }
+}
 
 
 
-// function displayNextJoke() {
-//   const heartedJokes = JSON.parse(localStorage.getItem('heartedJokes')) || [];
-//   if (heartedJokes.length > 0) {
-//     currentJokeIndex = (currentJokeIndex + 1) % heartedJokes.length;
-//     displayHeartedJokes();
-//   }
-// }
 
-// function displayPreviousJoke() {
-//   const heartedJokes = JSON.parse(localStorage.getItem('heartedJokes')) || [];
-//   if (heartedJokes.length > 0) {
-//     currentJokeIndex =
-//       (currentJokeIndex - 1 + heartedJokes.length) % heartedJokes.length;
-//     displayHeartedJokes();
-//   }
-// }
 
+
+function displayHeartedJokes() {
+  const jokeContainer = document.getElementById('jokeContainer');
+  jokeContainer.innerHTML = '';
+
+  const heartedJokes = JSON.parse(localStorage.getItem('heartedJokes')) || [];
+  if (heartedJokes.length === 0) {
+    jokeContainer.textContent = 'No hearted jokes found.';
+    // Remove the "hearted" class to reset the heart icon color
+    document.getElementById('heartBtn').classList.remove('hearted');
+    // Reset the currentJokeIndex
+    currentJokeIndex = 0;
+  } else {
+    // Show the left and right arrow icons
+    jokeContainer.innerHTML = `
+      <i class="fa-solid fa-arrow-left" id="prevBtn"></i>
+      <p>${heartedJokes[currentJokeIndex]}</p>
+      <i class="fa-solid fa-arrow-right" id="nextBtn"></i>
+    `;
+
+    // Check if the current joke is hearted and add the "hearted" class accordingly
+    const currentJokeText = heartedJokes[currentJokeIndex];
+    const heartBtn = document.getElementById('heartBtn');
+    if (currentJokeText === jokeContainer.textContent) {
+      heartBtn.classList.add('hearted');
+    } else {
+      heartBtn.classList.remove('hearted');
+    }
+
+    // Add event listeners for the arrow buttons
+    document
+      .getElementById('nextBtn')
+      .addEventListener('click', displayNextJoke);
+    document
+      .getElementById('prevBtn')
+      .addEventListener('click', displayPreviousJoke);
+  }
+}
 
 
 
@@ -218,6 +248,6 @@ document.getElementById('deleteBtn').addEventListener('click', () => {
   deleteHeartedJokes();
 });
 
-// document.getElementById('likedJokes').addEventListener('click', () => {
-//   displayHeartedJokes();
-// });
+document.getElementById('likedJokes').addEventListener('click', () => {
+  displayHeartedJokes();
+});
