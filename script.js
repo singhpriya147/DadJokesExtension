@@ -109,6 +109,73 @@ async function displayJokes(category) {
   }
 }
 
+
+
+
+
+
+const DadJokes=async()=>{
+
+   const response = await fetch('https://icanhazdadjoke.com', {
+     method: 'GET',
+     headers: {
+       Accept: 'application/json',
+     },
+   });
+
+   const data = await response.json();
+   console.log(data);
+
+   if(data && data.joke){
+    return data.joke;
+   }
+   else{
+    return "no joke found";
+   }
+// } catch (error) {
+//   console.error(error);
+   
+// }
+}
+
+async  function displayDadJokes(){
+  const jokeContainer = document.getElementById('jokeContainer');
+  jokeContainer.innerHTML = 'loading..';
+  const  joke= await DadJokes();
+
+  jokeContainer.textContent = joke;
+
+
+
+
+
+
+flagsContainer.style.display = 'none';
+
+  const heartedJokes = JSON.parse(localStorage.getItem('heartedJokes')) || [];
+  const heartBtn = document.getElementById('heartBtn');
+  if (heartedJokes.includes(joke)) {
+    heartBtn.classList.add('hearted');
+  } else {
+    heartBtn.classList.remove('hearted');
+  }
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //  for copying the jokes to clipboard for sharing purposes
 
 const copyToClipboard = async () => {
@@ -251,6 +318,12 @@ document.getElementById('spookyBtn').addEventListener('click', () => {
 document.getElementById('ChristmasBtn').addEventListener('click', () => {
   displayJokes('Christmas');
 });
+
+
+document.getElementById('dadJokesBtn').addEventListener('click', () => {
+ displayDadJokes();
+});
+
 
 document.getElementById('copyBtn').addEventListener('click', () => {
   copyToClipboard();
