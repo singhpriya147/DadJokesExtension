@@ -1,7 +1,9 @@
 // for fetching random jokes
 async function fetchAnyJoke() {
   try {
-    const response = await fetch(`https://v2.jokeapi.dev/joke/any`);
+    const response = await fetch(
+      `https://v2.jokeapi.dev/joke/Any?blacklistFlags=nsfw,religious,political,racist,sexist,explicit`
+    );
     const data = await response.json();
     console.log(data);
 
@@ -76,7 +78,7 @@ const revealButton = document.getElementById('revealButton');
 
 
   } else {
-     revealButton.style.display = 'none'; 
+      revealButton.style.display = 'none';
     flagsContainer.style.display = 'none';
   }
 
@@ -143,15 +145,29 @@ async function fetchJoke(category) {
 
 async function displayJokes(category) {
   const jokeContainer = document.getElementById('jokeContainer');
-  jokeContainer.innerHTML = 'loading..';
-  const { joke, trueFlags } = await fetchJoke(category);
-  jokeContainer.textContent = joke;
+
+  const revealButton = document.getElementById('revealButton');
 
   const flagsContainer = document.getElementById('flagsContainer');
+
+  jokeContainer.innerHTML = 'loading..';
+  jokeContainer.classList.remove('blur');
+  flagsContainer.textContent = '';
+ 
+  const { joke, trueFlags } = await fetchJoke(category);
+
+  jokeContainer.textContent = joke;
+
   if (trueFlags.length > 0) {
-    flagsContainer.textContent = `${trueFlags.join(' ,')}`;
+    jokeContainer.classList.add('blur'); // Add the blur class if there are true flags
+    revealButton.style.display = 'block';
+
+    flagsContainer.textContent = `
+   
+    ${trueFlags.join(' ,')}`;
     flagsContainer.style.display = 'block';
   } else {
+    revealButton.style.display = 'none';
     flagsContainer.style.display = 'none';
   }
 
@@ -163,6 +179,16 @@ async function displayJokes(category) {
   } else {
     heartBtn.classList.remove('hearted');
   }
+
+
+
+revealButton.addEventListener('click', () => {
+  const jokeContainer = document.getElementById('jokeContainer');
+  jokeContainer.classList.remove('blur'); // Remove the blur class when revealing jokes
+  revealButton.style.display = 'none'; // Hide the reveal button after clicking
+});
+
+ 
 }
 
 
@@ -198,15 +224,13 @@ async  function displayDadJokes(){
   const jokeContainer = document.getElementById('jokeContainer');
   jokeContainer.innerHTML = 'loading..';
   const  joke= await DadJokes();
-
+jokeContainer.classList.remove('blur');
   jokeContainer.textContent = joke;
 
 
-
-
-
-
 flagsContainer.style.display = 'none';
+ revealButton.style.display = 'none';
+
 
   const heartedJokes = JSON.parse(localStorage.getItem('heartedJokes')) || [];
   const heartBtn = document.getElementById('heartBtn');
@@ -328,8 +352,7 @@ function displayHeartedJokes() {
       .addEventListener('click', displayPreviousJoke);
   }
 
-
-   document.getElementById('heartBtn').classList.toggle('hearted');
+  document.getElementById('heartBtn').classList.toggle('hearted');
 }
 
 document.getElementById('heartBtn').addEventListener('click', () => {
@@ -355,6 +378,8 @@ document.getElementById('heartBtn').addEventListener('click', () => {
   document.getElementById('heartBtn').classList.toggle('hearted');
 });
 
+
+
 document.addEventListener('DOMContentLoaded', () => {
   displayAnyJoke();
 });
@@ -367,16 +392,17 @@ document.getElementById('anyBtn').addEventListener('click', () => {
 // document.getElementById('darkBtn').addEventListener('click', () => {
 //   displayJokes('dark');
 // });
-document.getElementById('punBtn').addEventListener('click', () => {
-  displayJokes('pun');
+document.getElementById('punBtn').addEventListener('click', () =>{displayJokes('Pun');
 });
 document.getElementById('spookyBtn').addEventListener('click', () => {
-  displayJokes('spooky');
+  displayJokes('Spooky');
 });
-document.getElementById('ChristmasBtn').addEventListener('click', () => {
-  displayJokes('Christmas');
+document.getElementById('CodingBtn').addEventListener('click', () => {
+  displayJokes('Programming');
 });
-
+// document.getElementById('ChristmasBtn').addEventListener('click', () => {
+//   displayJokes('Christmas');
+// });
 
 document.getElementById('dadJokesBtn').addEventListener('click', () => {
  displayDadJokes();
