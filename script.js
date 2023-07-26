@@ -4,19 +4,28 @@ async function fetchAnyJoke() {
     const response = await fetch(`https://v2.jokeapi.dev/joke/any`);
     const data = await response.json();
     console.log(data);
+
     // check if any flags are true
     const trueFlags = Object.keys(data.flags).filter(
       (flag) => data.flags[flag]
     );
 
-    if (data && data.type === 'single' && data.joke) {
+     
+    if (data && data.type === 'single' && data.joke ) {
       //  return data.joke;
       return { joke: data.joke, trueFlags };
-    } else if (data && data.type === 'twopart' && data.setup && data.delivery) {
+    } else if (
+      data &&
+      data.type === 'twopart' &&
+      data.setup &&
+      data.delivery 
+     
+    ) {
       return { joke: `${data.setup}\n${data.delivery}`, trueFlags };
     } else {
       return { joke: 'No joke found.', trueFlags };
     }
+
   } catch (error) {
     console.error('Error fetching jokes:', error);
     return {
@@ -25,22 +34,49 @@ async function fetchAnyJoke() {
     };
   }
 }
+
+
+
+
+
+
+
+
+
 // for displaying random jokes
 
 async function displayAnyJoke() {
   const jokeContainer = document.getElementById('jokeContainer');
+
+ 
+const revealButton = document.getElementById('revealButton');
+  const flagsContainer = document.getElementById('flagsContainer');
+
+
   jokeContainer.innerHTML = 'loading..';
+   jokeContainer.classList.remove('blur');
+ flagsContainer.textContent = ''; 
+
   const { joke, trueFlags } = await fetchAnyJoke();
 
   jokeContainer.textContent = joke;
 
-  const flagsContainer = document.getElementById('flagsContainer');
+  
+
+
   if (trueFlags.length > 0) {
+
+     jokeContainer.classList.add('blur'); // Add the blur class if there are true flags
+     revealButton.style.display = 'block';
+
     flagsContainer.textContent = `
    
     ${trueFlags.join(' ,')}`;
     flagsContainer.style.display = 'block';
+
+
   } else {
+     revealButton.style.display = 'none'; 
     flagsContainer.style.display = 'none';
   }
 
@@ -52,7 +88,27 @@ async function displayAnyJoke() {
   } else {
     heartBtn.classList.remove('hearted');
   }
+
+
+
+revealButton.addEventListener('click', () => {
+  const jokeContainer = document.getElementById('jokeContainer');
+  jokeContainer.classList.remove('blur'); // Remove the blur class when revealing jokes
+  revealButton.style.display = 'none'; // Hide the reveal button after clicking
+});
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 // fetching joke from specific category
 
@@ -304,11 +360,13 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 document.getElementById('anyBtn').addEventListener('click', () => {
-  displayJokes('any');
+  // displayJokes('any');
+ displayAnyJoke();
+
 });
-document.getElementById('darkBtn').addEventListener('click', () => {
-  displayJokes('dark');
-});
+// document.getElementById('darkBtn').addEventListener('click', () => {
+//   displayJokes('dark');
+// });
 document.getElementById('punBtn').addEventListener('click', () => {
   displayJokes('pun');
 });
